@@ -21,12 +21,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
     'django_filters',
     'corsheaders',
     'modeltranslation',
     'commons',
     'rosetta',
-    'rest_framework_swagger',
     'tasks.apps.TasksConfig',
     'users.apps.UsersConfig',
 ]
@@ -125,8 +125,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
-    "DATE_FORMAT": "%d/%m/%Y",
-    "DATETIME_FORMAT": "%d/%m/%Y %H:%M:%S",
+    'DATETIME_FORMAT': "%d/%m/%Y %H:%M:%S",
+    'DATETIME_INPUT_FORMATS': [
+        'iso-8601', "%d/%m/%Y %H:%M:%S", "%d-%m-%Y %H:%M:%S"
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.'
                                 'LimitOffsetPagination',
     'PAGE_SIZE': 10,

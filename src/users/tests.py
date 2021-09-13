@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -7,9 +8,9 @@ from rest_framework.authtoken.models import Token
 
 from users.serializers import UserModelSerializer
 
-LOGIN_URL = ''
-LOGOUT_URL = ''
-SIGNUP_URL = ''
+LOGIN_URL = reverse('users:login')
+LOGOUT_URL = reverse('users:logout')
+SIGNUP_URL = reverse('users:signup')
 
 
 class UserTestCase(TestCase):
@@ -116,7 +117,7 @@ class UserTestCase(TestCase):
             'password_confirmation': 'test123**.'
         }
         res = self.client.post(SIGNUP_URL, payload)
-        user = User.objects.get(username='user')
+        user = User.objects.get(username='user_signup_test')
         serializer = UserModelSerializer(user)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data, serializer.data)

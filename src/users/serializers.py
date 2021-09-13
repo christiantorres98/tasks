@@ -3,6 +3,7 @@ from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -47,3 +48,11 @@ class UserSignUpSerializer(serializers.Serializer):
         validated_data.pop('password_confirmation')
         user = User.objects.create_user(**validated_data)
         return user
+
+
+class TokenModelSerializer(serializers.ModelSerializer):
+    user = UserModelSerializer()
+
+    class Meta:
+        model = Token
+        fields = ('key', 'user')

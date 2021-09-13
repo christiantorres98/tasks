@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django_dynamic_fixture import G
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -28,12 +29,12 @@ class TaskTestCase(TestCase):
                        description='description of task 3')
 
     def test_list_own_tasks_not_authenticated(self):
-        url = ""
+        url = reverse('tasks:task-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_list_own_tasks(self):
-        url = ""
+        url = reverse('tasks:task-list')
         self.client.force_authenticate(self.user_1)
         response = self.client.get(url)
         tasks = self.user_1.task_set.all()
@@ -43,14 +44,14 @@ class TaskTestCase(TestCase):
         self.assertEqual(response.data['results'], serializer.data)
 
     def test_list_tasks_with_search(self):
-        url = ""
+        url = reverse('tasks:task-list') + '?search=task 3'
         self.client.force_authenticate(self.user_1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 1)
 
     def test_task_creation_not_authenticated(self):
-        url = ""
+        url = reverse('tasks:task-list')
         payload = {
             'name': 'test task',
             'description': 'test task description',
@@ -60,7 +61,7 @@ class TaskTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_failed_task_creation_by_missing_data(self):
-        url = ""
+        url = reverse('tasks:task-list')
         self.client.force_authenticate(self.user_1)
         payload = {
             'name': 'test task',
@@ -69,7 +70,7 @@ class TaskTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_successful_task_creation(self):
-        url = ""
+        url = reverse('tasks:task-list')
         self.client.force_authenticate(self.user_1)
         payload = {
             'name': 'test task',
@@ -84,35 +85,35 @@ class TaskTestCase(TestCase):
             self.assertEqual(payload[key], serializer_data[key])
 
     def test_task_deletion_not_authenticated(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_task_deletion_without_permission(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_2)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_successful_task_deletion(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_1)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_task_update_not_authenticated(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         response = self.client.put(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_task_update_without_permission(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_2)
         response = self.client.put(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_task_update(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_1)
         payload = {
             'name': 'updated task',
@@ -127,18 +128,18 @@ class TaskTestCase(TestCase):
         self.assertEqual(response.data, serializer.data)
 
     def test_task_partial_update_not_authenticated(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         response = self.client.patch(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_task_partial_update_without_permission(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_2)
         response = self.client.patch(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_task_partial_update(self):
-        url = ""
+        url = reverse('tasks:task-detail', args=[self.task1.pk])
         self.client.force_authenticate(self.user_1)
         payload = {'status': 'completa'}
         response = self.client.patch(url, payload)
