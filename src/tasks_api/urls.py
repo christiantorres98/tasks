@@ -13,9 +13,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from jet.views import model_lookup_view
+from rest_framework_swagger.views import get_swagger_view
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
+urlpatterns_api = [
 ]
+
+schema_view = get_swagger_view(title='TASKS API', patterns=urlpatterns_api)
+
+urlpatterns_root = i18n_patterns(
+    path('jet/model_lookup/', model_lookup_view, name='model_lookup'),
+    path('jet/', include('jet.urls', 'jet')),
+    path('admin/', admin.site.urls),
+    path('api-doc/', schema_view, name='api-doc'),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('rosetta/', include('rosetta.urls')),
+    prefix_default_language=True
+)
+
+urlpatterns = urlpatterns_root + urlpatterns_api + static(
+    settings.STATIC_URL, document_root=settings.STATIC_ROOT
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
